@@ -21,4 +21,3 @@ CREATE TABLE IF NOT EXISTS logs (
 -- Disable Row Level Security so the service role key can read/write freely
 ALTER TABLE clients DISABLE ROW LEVEL SECURITY;
 ALTER TABLE logs    DISABLE ROW LEVEL SECURITY;
--- just testing
