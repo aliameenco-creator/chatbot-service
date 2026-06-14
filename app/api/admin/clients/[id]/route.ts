@@ -1,3 +1,4 @@
+import { NextRequest } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
 
 function getSupabase() {
@@ -7,23 +8,23 @@ function getSupabase() {
   );
 }
 
-function isAuthorized(req: Request) {
+function isAuthorized(req: NextRequest) {
   const auth = req.headers.get('authorization') ?? '';
   const token = auth.replace('Bearer ', '');
   return token === process.env.ADMIN_PASSWORD;
 }
 
-export async function DELETE(req: Request, { params }: { params: Promise<{ id: string }> }) {
+export async function DELETE(
+  req: NextRequest,
+  context: { params: Promise<{ id: string }> }
+) {
   if (!isAuthorized(req)) {
     return Response.json({ error: 'Unauthorized' }, { status: 401 });
   }
 
-  const { id } = await params;
+  const { id } = await context.params;
   const supabase = getSupabase();
-  const { error } = await supabase
-    .from('clients')
-    .delete()
-    .eq('id', id);
+  const { error } = await supabase.from('clients').delete().eq('id', id);
 
   if (error) {
     return Response.json({ error: error.message }, { status: 500 });
@@ -32,12 +33,15 @@ export async function DELETE(req: Request, { params }: { params: Promise<{ id: s
   return Response.json({ success: true });
 }
 
-export async function PATCH(req: Request, { params }: { params: Promise<{ id: string }> }) {
+export async function PATCH(
+  req: NextRequest,
+  context: { params: Promise<{ id: string }> }
+) {
   if (!isAuthorized(req)) {
     return Response.json({ error: 'Unauthorized' }, { status: 401 });
   }
 
-  const { id } = await params;
+  const { id } = await context.params;
   const body = await req.json();
   const supabase = getSupabase();
 
